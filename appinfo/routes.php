@@ -1,38 +1,19 @@
 <?php
 declare(strict_types=1);
-
+// SPDX-FileCopyrightText: Simon Sanladerer <simon@sanladerer.com>
+// SPDX-License-Identifier: AGPL-3.0-or-later
 
 /**
- * Files_FullTextSearch_Mail - Parse your mails before index
+ * Create your routes in here. The name is the lowercase name of the controller
+ * without the controller part, the stuff after the hash is the method.
+ * e.g. page#index -> OCA\FilesFullTextSearchMail\Controller\PageController->index()
  *
- * This file is licensed under the Affero General Public License version 3 or
- * later. See the COPYING file.
- *
- * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2018
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * The controller class has to be registered in the application.php file since
+ * it's instantiated in there
  */
-
-
 return [
 	'routes' => [
 		['name' => 'Settings#getSettingsAdmin', 'url' => '/admin/settings', 'verb' => 'GET'],
 		['name' => 'Settings#setSettingsAdmin', 'url' => '/admin/settings', 'verb' => 'POST']
 	]
 ];
-
-

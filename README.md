@@ -1,10 +1,10 @@
 # files_fulltextsearch_mail
 
-Forked from a very old NC15 extension - this one should parse also the body of the emails, not just the header.
+Add indexing of .eml files including body and header for NC 25.0.2
 
-Will have to check if the whole extension base is feasible after all this time of if I just start from scratch first.
+## Explanation of this Fork (Rebase)
 
-So maybe the fork will be actually something brand new.
+Forked from a very old NC15 extension. Completely rebase with latest App Template for Nextcloud 25
 
 Discussion:
 
@@ -14,13 +14,26 @@ Note for myself:
 
 https://github.com/nextcloud/server/blob/master/lib/public/Files_FullTextSearch/Model/AFilesDocument.php#L37-L58
 
-----
+## Building the app
 
-Parse your mail before index
+The app can be built by using the provided Makefile by running:
 
-### Installation / Setup
+    make
 
-you need NC15 and php-mailparser
+This requires the following things to be present:
+* make
+* which
+* tar: for building the archive
+* curl: used if phpunit and composer are not installed to fetch them from the web
+* npm: for building and testing everything JS, only required if a package.json is placed inside the **js/** folder
 
->     $ make composer
+The make command will install or update Composer dependencies if a composer.json is present and also **npm run build** if a package.json is present in the **js/** folder. The npm **build** script should use local paths for build systems and package managers, so people that simply want to build the app won't need to install npm libraries globally, e.g.:
 
+**package.json**:
+```json
+"scripts": {
+    "test": "node node_modules/gulp-cli/bin/gulp.js karma",
+    "prebuild": "npm install && node_modules/bower/bin/bower install && node_modules/bower/bin/bower update",
+    "build": "node node_modules/gulp-cli/bin/gulp.js"
+}
+```
