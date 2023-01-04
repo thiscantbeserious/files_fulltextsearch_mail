@@ -1,5 +1,5 @@
 {
-  "name": "filesfulltextsearchmail",
+  "name": "files_fulltextsearch_mail",
   "description": "Add indexing of .eml files including body and header for NC 25.0.2",
   "version": "1.0.0",
   "author": "Simon Sanladerer <simon@sanladerer.com>",
