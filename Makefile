@@ -105,6 +105,7 @@ distclean: clean
 dist:
 	make source
 	make appstore
+	rm -rf /home/doh/git/nextcloud/extra-apps/$(appstore_package_name)/
 	tar -xvzf $(appstore_package_name).tar.gz --directory /home/doh/git/nextcloud/extra-apps
 
 # Builds the source package

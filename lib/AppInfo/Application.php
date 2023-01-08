@@ -10,7 +10,7 @@ use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\EventDispatcher\IEventDispatcher;
-use Symfony\Component\EventDispatcher\GenericEvent;
+use OCP\EventDispatcher\GenericEvent;
 
 use \OCP\ILogger;
 
@@ -54,36 +54,35 @@ class Application extends App implements IBootstrap {
         });
 		$this->logger->info("Registering Event hooks for ".self::APP_NAME);
 		/** @var IEventDispatcher $eventDispatcher */
-		$eventDispatcher= $this->getContainer()->get(IEventDispatcher::class);
-		//$eventDispatcher = \OCP\Server::get(\OCP\EventDispatcher\IEventDispatcher::class);
+		//$eventDispatcher= $this->getContainer()->get(IEventDispatcher::class);
+		$eventDispatcher = \OCP\Server::get(\OCP\EventDispatcher\IEventDispatcher::class);
 		//$eventDispatcher = \OC::$server->getEventDispatcher();
-		$eventDispatcher->addListener(
-			'Files_FullTextSearch.onFileIndexing',
-			function(GenericEvent $e) {
-				$this->logger->info(self::APP_NAME." onFileIndexing event catched");
-				$this->mailService->onFileIndexing($e);
-			}
-		);
-		$eventDispatcher->addListener(
-			'Files_FullTextSearch.onSearchRequest',
-			function(GenericEvent $e) {
-				$this->logger->info(self::APP_NAME." onSearchRequest event catched");
-				$this->mailService->onSearchRequest($e);
-			}
-		);
 
-		$eventDispatcher->
+		//fixed thanks to this hint: https://github.com/nextcloud/files_fulltextsearch/issues/159
 		$eventDispatcher->addListener(
-			'Files_FullTextSearch.onSearchResult',
-			function(GenericEvent $e) {
-				$this->logger->info(self::APP_NAME." onSearchResult event catched");
+			'OCP\EventDispatcher\GenericEvent',
+			function (GenericEvent $e) {
+				$subject = $e->getSubject();
+				$this->logger->info(self::APP_NAME." {$subject} event catched");
+				switch($subject) {
+					case "Files_FullTextSearch.onFileIndexing":
+					$this->mailService->onFileIndexing($e);
+					break;
+					case "Files_FullTextSearch.onSearchRequest":
+					$this->mailService->onSearchRequest($e);
+					break;
+					case "Files_FullTextSearch.onSearchResult":
+					$this->mailService->onSearchResult($e);
+					break;
+
+				}
 				$this->mailService->onSearchResult($e);
 			}
 		);
 
 		//test event dispatch from same app
 
-		$eventDispatcher->dispatchTyped(new GenericEvent('Files_FullTextSearch.onFileIndexing', ['file' => null, 'document' => null]));
+		//$eventDispatcher->dispatchTyped(new GenericEvent('Files_FullTextSearch.onFileIndexing', ['file' => null, 'document' => null]));
 	}
 
 	public function boot(IBootContext $context): void {

@@ -35,11 +35,11 @@ use Exception;
 use OCP\Files\File;
 use OCP\Files\Node;
 use OCP\Files_FullTextSearch\Model\AFilesDocument;
-use OCP\FullTextSearch\Model\IndexDocument;
+use OCP\FullTextSearch\Model\IIndexDocument;
 use OCP\FullTextSearch\Model\ISearchRequest;
 use OCP\FullTextSearch\Model\ISearchResult;
 use PhpMimeMailParser\Parser;
-use Symfony\Component\EventDispatcher\GenericEvent;
+use OCP\EventDispatcher\GenericEvent;
 
 use \OCP\ILogger;
 
@@ -122,7 +122,7 @@ class MailService {
 			return;
 		}
 
-		this->logger->info('Its an EML so lets look at it ...');
+		$this->logger->info('Its an EML so lets look at it ...');
 
 		$this->extractContent($document, $file);
 	}
@@ -132,15 +132,19 @@ class MailService {
 	 * @param GenericEvent $e
 	 */
 	public function onSearchRequest(GenericEvent $e) {
-		/** @var ISearchRequest $request */
-		$request = $e->getArgument('request');
+		try {
+			/** @var ISearchRequest $request */
+			$request = $e->getArgument('request');
 
-		foreach ($request->getOptionArray('and:from', []) as $from) {
-			$request->addWildcardFilter(['from' => '*' . strtolower($from) . '*']);
-		}
+			foreach ($request->getOptionArray('and:from', []) as $from) {
+				$request->addWildcardFilter(['from' => '*' . strtolower($from) . '*']);
+			}
 
-		foreach ($request->getOptionArray('and:to', []) as $to) {
-			$request->addWildcardFilter(['to' => '*' . strtolower($to) . '*']);
+			foreach ($request->getOptionArray('and:to', []) as $to) {
+				$request->addWildcardFilter(['to' => '*' . strtolower($to) . '*']);
+			}
+		} catch (Exception $e) {
+			return;
 		}
 	}
 
@@ -151,7 +155,7 @@ class MailService {
 	public function onSearchResult(GenericEvent $e) {
 
 		/** @var ISearchResult $result */
-		$result = $e->getArgument('result');
+		//$result = $e->getArgument('result');
 
 //		$this->miscService->log('###' . json_encode($result));
 	}
@@ -191,7 +195,7 @@ class MailService {
 			$document->setInfoArray('from', $from);
 			$document->addPart('subject', $subject);
 			$document->setContent(
-				base64_encode($Parser->getMessageBody('text')), IndexDocument::ENCODED_BASE64
+				base64_encode($Parser->getMessageBody('text')), IIndexDocument::ENCODED_BASE64
 			);
 		} catch (Exception $e) {
 			return;
