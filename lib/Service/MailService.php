@@ -40,8 +40,8 @@ use OCP\FullTextSearch\Model\ISearchRequest;
 use OCP\FullTextSearch\Model\ISearchResult;
 use PhpMimeMailParser\Parser;
 use Symfony\Component\EventDispatcher\GenericEvent;
-use thiagoalessio\TesseractOCR\TesseractOCR;
 
+use \OCP\ILogger;
 
 /**
  * Class MailService
@@ -50,12 +50,11 @@ use thiagoalessio\TesseractOCR\TesseractOCR;
  */
 class MailService {
 
+	private ILogger $logger; 
 
-	/** @var ConfigService */
-	private $configService;
+	private ConfigService $configService;
 
-	/** @var MiscService */
-	private $miscService;
+	private MiscService $miscService;
 
 
 	/**
@@ -64,7 +63,8 @@ class MailService {
 	 * @param ConfigService $configService
 	 * @param MiscService $miscService
 	 */
-	public function __construct(ConfigService $configService, MiscService $miscService) {
+	public function __construct(ILogger $logger, ConfigService $configService, MiscService $miscService) {
+		$this->logger = $logger;
 		$this->configService = $configService;
 		$this->miscService = $miscService;
 	}
@@ -109,6 +109,8 @@ class MailService {
 		/** @var Node $file */
 		$file = $e->getArgument('file');
 
+		$this->logger->info('onFileIndexing hook called ...');
+
 		if (!$file instanceof File) {
 			return;
 		}
@@ -119,6 +121,8 @@ class MailService {
 		if ($file->getExtension() !== 'eml') {
 			return;
 		}
+
+		this->logger->info('Its an EML so lets look at it ...');
 
 		$this->extractContent($document, $file);
 	}
@@ -164,6 +168,8 @@ class MailService {
 
 			$Parser->setText($file->getContent());
 
+			$this->logger->info("extractContent called. Trying to extract content from Mail ...");
+
 			$to = array_map(
 				function($item) {
 					return $item['address'];
@@ -177,6 +183,9 @@ class MailService {
 			);
 
 			$subject = $Parser->getHeader('subject');
+
+			$this->logger->info("Subject:  {$subject}, Text: {$Parser->getMessageBody('text')}");
+
 
 			$document->setInfoArray('to', $to);
 			$document->setInfoArray('from', $from);
